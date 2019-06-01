@@ -101,13 +101,13 @@ function addInv(){
             message : "How many unit will be adding to inventory?"
         }
     ]).then(function(answer){
-        console.log(answer.id)
-        console.log(answer.addedQuantity)
+        //console.log(answer.id)
+        //console.log(answer.addedQuantity)
         var stock_quantity=0;
         for(let i =0 ; i<value.length ; i++){
-            if(value[i].id==answer.id) stock_quantity=value[i].stock_quantity
+            if(value[i].item_id==answer.id) stock_quantity=value[i].stock_quantity
         }
-        console.log(stock_quantity);
+        //console.log(stock_quantity);
         let lastQuantity = parseInt(stock_quantity)+parseInt(answer.addedQuantity) 
         connection.query(
             "UPDATE products SET ? WHERE ?",
@@ -116,7 +116,7 @@ function addInv(){
                 stock_quantity: lastQuantity
               },
               {
-                id: answer.id
+                item_id: answer.id
               }
             ],
             function(err, res) {
@@ -124,5 +124,60 @@ function addInv(){
               starter();
             }
         );
+    })
+}
+
+function addProduct(){
+    inquirer.prompt([
+        {
+            type : "input",
+            name : "productName",
+            message : "What is New Product?"
+        },
+        {
+            type : "input",
+            name : "departmentName",
+            message : "Which department would you like to desite to put?"
+        },
+        {
+            type : "input",
+            name : "price",
+            message : "Price of this product? (Enter Number)",
+            validate: function(value) {
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                    return false;
+              }
+        },
+        {
+            type : "input",
+            name : "stockQuantity",
+            message : "How much is this product last shipment quantity? (Enter Number)",
+            validate: function(value) {
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                    return false;
+              }
+        },
+    ]).then(function(answer){
+            connection.query(
+                "INSERT INTO products SET ?",
+                {
+                    product_name: answer.productName,
+                    department_name: answer.departmentName,
+                    price: answer.price,
+                    stock_quantity: answer.stockQuantity
+                },
+                function(err, res) {
+                    console.log(" Product added\n");
+                    starter();
+                }
+          );
+        //console.log(answer.productName)
+        //console.log(answer.departmentName)
+        //console.log(answer.price)
+        //console.log(answer.stockQuantity)
     })
 }
