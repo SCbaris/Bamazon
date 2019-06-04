@@ -10,6 +10,7 @@ var connection = mysql.createConnection({
 });
 
 var departments=[];
+var superDepartments=[];
 var dataArr=[];
 var superDataArr=[];
 var sales=[0,0,0,0,0,0,0,0,0,0];
@@ -24,24 +25,34 @@ function updateInv(){
                 //console.log("departments writing");
                 departments.push(dataArr[i].department_name)
             } 
+            
         }//console.log(departments); // works!!
         departmentInit();
-        
     });
     connection.query("SELECT * FROM departments", function(err, res) {
         if (err) throw err;
         superDataArr=res;
+        for(let i=0 ; i<superDataArr.length ; i++){
+            //console.log(superDepartments.includes(dataArr[0].department_name))
+            if(superDepartments.includes(superDataArr[i].department_name)==false){
+                //console.log("superDepartments writing");
+                superDepartments.push(superDataArr[i].department_name)
+            } 
+            
+        }//console.log(departments); // works!!
         departmentInit();
     });
     
-    
+    starter();
 }
 
 function departmentInit(){
-        
+        //console.log("s " + superDepartments);
+        //console.log("d " + departments);
+        //console.log(superDataArr);
         for (let i = 0 ; i<superDataArr.length;i++){
-            console.log(departments.includes(superDataArr[i].department_name))
-            if(departments.includes(superDataArr[i].department_name)==false){
+            //console.log(departments.includes(superDataArr[i].department_name))
+            if(superDepartments!=departments){
                 inquirer.prompt({
                     name: "overhead_cost",
                     type: "input",
@@ -76,7 +87,7 @@ connection.connect(function(err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId + "\n");
     updateInv();
-    starter();
+    
 });
 
 function starter(){
