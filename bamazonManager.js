@@ -93,12 +93,25 @@ function addInv(){
         {
             type : "input",
             name : "id",
-            message : "Which item's quantity will increase (Enter ID)"
+            message : "Which item's quantity will increase (Enter ID)",
+            validate: function(value) {
+                if (isNaN(value) === false && parseInt(value)>=0) {
+                    return true;
+                }
+                    return false;
+            }
         },
+
         {
             type : "input",
             name : "addedQuantity",
-            message : "How many unit will be adding to inventory?"
+            message : "How many unit will be adding to inventory?",
+            validate: function(value) {
+                if (isNaN(value) === false && parseInt(value)>=0) {
+                    return true;
+                }
+                    return false;
+            }
         }
     ]).then(function(answer){
         //console.log(answer.id)
@@ -144,7 +157,7 @@ function addProduct(){
             name : "price",
             message : "Price of this product? (Enter Number)",
             validate: function(value) {
-                if (isNaN(value) === false) {
+                if (isNaN(value) === false && parseInt(value)>=0) {
                     return true;
                 }
                     return false;
@@ -155,7 +168,7 @@ function addProduct(){
             name : "stockQuantity",
             message : "How much is this product last shipment quantity? (Enter Number)",
             validate: function(value) {
-                if (isNaN(value) === false) {
+                if (isNaN(value) === false && parseInt(value)>=0) {
                     return true;
                 }
                     return false;
