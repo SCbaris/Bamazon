@@ -9,11 +9,36 @@ var connection = mysql.createConnection({
     database: "Bamazon"
 });
 
+function difference (a1, a2) {
+
+    var a = [], diff = [];
+
+    for (var i = 0; i < a1.length; i++) {
+        a[a1[i]] = true;
+    }
+
+    for (var i = 0; i < a2.length; i++) {
+        if (a[a2[i]]) {
+            delete a[a2[i]];
+        } else {
+            a[a2[i]] = true;
+        }
+    }
+
+    for (var k in a) {
+        diff.push(k);
+    }
+
+    return diff;
+}
+
+
 var departments=[];
 var superDepartments=[];
 var dataArr=[];
 var superDataArr=[];
 var sales=[0,0,0,0,0,0,0,0,0,0];
+var ind=0;
 
 function updateInv(){
     connection.query("SELECT * FROM products", function(err, res) {
@@ -26,9 +51,14 @@ function updateInv(){
                 departments.push(dataArr[i].department_name)
             } 
             
-        }//console.log(departments); // works!!
-        departmentInit();
+        }
+        //console.log("dataArr.length " + dataArr.length); // works!!
+        //console.log("departments " + departments); // works!!
     });
+    updateInv1();
+}
+
+function updateInv1(){
     connection.query("SELECT * FROM departments", function(err, res) {
         if (err) throw err;
         superDataArr=res;
@@ -39,55 +69,99 @@ function updateInv(){
                 superDepartments.push(superDataArr[i].department_name)
             } 
             
-        }//console.log(departments); // works!!
-        departmentInit();
-    });
-    
-    starter();
+        }
+        //console.log("superDataArr.length " + superDataArr.length) // works!!
+        //console.log("superDepartments " + superDepartments); // works!!  
+    });   
 }
 
 function departmentInit(){
-        //console.log("s " + superDepartments);
-        //console.log("d " + departments);
-        //console.log(superDataArr);
-        for (let i = 0 ; i<superDataArr.length;i++){
+    var arr=[];
+       //console.log("superDataArr " + superDataArr);// Works!!
+       //console.log("dataArr " + dataArr);// Works!!
+       //console.log("superDepartments " + superDepartments);// Works!!
+       //console.log("departments " + departments); // Works!!
+       //console.log(difference(departments,superDepartments));// Works!!
+       //console.log(arr.length==0);// Works!!
+       arr=difference(departments,superDepartments);
+       console.log(arr); // Works!!
+
+       if(arr.length>0 && ind!=arr.length){
+            console.log("There is another department added!")
+            inquirer.prompt({
+                name: "overhead_cost",
+                type: "input",
+                message:"What is " + arr[ind] + " department over head cost?",
+                validate: function(value) {
+                    if (isNaN(value) === false && parseInt(value)>=0) {
+                        return true;
+                    }
+                        return false;
+                }
+            }).then(function(answer){
+                connection.query(
+                    "INSERT INTO departments SET ?",
+                    {
+                        department_name: arr[ind],
+                        over_hear_costs: answer.overhead_cost,     
+                    },
+                    function(err, res) {
+                        if (err) throw err;
+                        console.log("Over Head Cost Added on New department\n");
+                        arr=difference(departments,superDepartments)
+                        console.log("ind " + ind + "\n arr.length " + arr.length)
+                        if(ind==(arr.length-1)){
+            
+                            superVizorView();
+                        }else if(arr.length>0) {
+                            ind++;
+                            departmentInit();
+                        }
+                    }
+                );
+            })
+
+       }
+
+
+
+        /*for (let i = 0 ; i<departments.length;i++){
             //console.log(departments.includes(superDataArr[i].department_name))
-            if(superDepartments!=departments){
-                inquirer.prompt({
-                    name: "overhead_cost",
-                    type: "input",
-                    message:"What is " +  superDataArr[i].department_name + " department over head cost?",
-                    validate: function(value) {
-                        if (isNaN(value) === false && parseInt(value)>=0) {
-                            return true;
+            if(superDepartments.includes(departments)==false){
+                if(superDataArr[i].department_name!=departments[i] || superDataArr[i].department_name==null){
+                    inquirer.prompt({
+                        name: "overhead_cost",
+                        type: "input",
+                        message:"What is " +  difference(superDepartments,departments) + " department over head cost?",
+                        validate: function(value) {
+                            if (isNaN(value) === false && parseInt(value)>=0) {
+                                return true;
+                            }
+                                return false;
                         }
-                            return false;
-                      }
-                }).then(function(answer){
-                    connection.query(
-                        "INSERT INTO departments SET ?",
-                        {
-                            department_name: superDataArr[i].department_name,
-                            over_hear_costs: answer.overhead_cost,     
-                        },
-                        function(err, res) {
-                            if (err) throw err;
-                            console.log("Over Head Cost Added on New department\n");
-                            updateInv();
-                        }
-                    );
-                })
+                    }).then(function(answer){
+                        connection.query(
+                            "INSERT INTO departments SET ?",
+                            {
+                                department_name: difference(superDepartments,departments),
+                                over_hear_costs: answer.overhead_cost,     
+                            },
+                            function(err, res) {
+                                if (err) throw err;
+                                console.log("Over Head Cost Added on New department\n");
+                                updateInv();
+                            }
+                        );
+                    })
+                }
             }
-        }    
+        }*/    
 }
-
-
 
 connection.connect(function(err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId + "\n");
-    updateInv();
-    
+    starter();
 });
 
 function starter(){
@@ -359,7 +433,6 @@ function removeProduct(){
     })
 }
 
-
 function checkProductByID(ID){
     for(let i = 0 ; i < dataArr.length ; i ++ ){
         if(dataArr[i].item_id==parseInt(ID)) return true;
@@ -372,9 +445,12 @@ function checkProductByProductName(productName){
     }return false; 
 }
 
-
-
 function superVizorView(){
+    departmentInit();
+    console.log(superDataArr)
+
+
+
     for(let i=0; i<superDataArr.length ; i++){
         //console.log("i " + i)
         for(let x=0 ; x<dataArr.length ; x++){
@@ -384,6 +460,6 @@ function superVizorView(){
             }
         }
     }sales=sales.slice(0,superDataArr.length);
-    console.log(sales);
-    console.log(superDataArr);
+    //console.log(sales);
+    //console.log(superDataArr);
 }
