@@ -60,4 +60,6 @@ typings/
 # next.js build output
 .next
 homework_instructions.md
+.DS_Store
+node_modules
 

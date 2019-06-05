@@ -76,7 +76,7 @@ function updateInv1(){
 }
 
 function departmentInit(){
-    var arr=[];
+       var arr=[];
        //console.log("superDataArr " + superDataArr);// Works!!
        //console.log("dataArr " + dataArr);// Works!!
        //console.log("superDepartments " + superDepartments);// Works!!
@@ -119,43 +119,8 @@ function departmentInit(){
                         }
                     }
                 );
-            })
-
-       }
-
-
-
-        /*for (let i = 0 ; i<departments.length;i++){
-            //console.log(departments.includes(superDataArr[i].department_name))
-            if(superDepartments.includes(departments)==false){
-                if(superDataArr[i].department_name!=departments[i] || superDataArr[i].department_name==null){
-                    inquirer.prompt({
-                        name: "overhead_cost",
-                        type: "input",
-                        message:"What is " +  difference(superDepartments,departments) + " department over head cost?",
-                        validate: function(value) {
-                            if (isNaN(value) === false && parseInt(value)>=0) {
-                                return true;
-                            }
-                                return false;
-                        }
-                    }).then(function(answer){
-                        connection.query(
-                            "INSERT INTO departments SET ?",
-                            {
-                                department_name: difference(superDepartments,departments),
-                                over_hear_costs: answer.overhead_cost,     
-                            },
-                            function(err, res) {
-                                if (err) throw err;
-                                console.log("Over Head Cost Added on New department\n");
-                                updateInv();
-                            }
-                        );
-                    })
-                }
-            }
-        }*/    
+            });
+       };   
 }
 
 connection.connect(function(err) {
